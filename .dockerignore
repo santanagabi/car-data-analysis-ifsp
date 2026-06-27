@@ -1,0 +1,9 @@
+# O contexto de build deve ser leve: o CSV e o notebook chegam via bind-mount, não pela imagem.
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+vehicle_price_prediction.csv
+*.pdf
+trabalho_cars.html
+.git/

@@ -1,0 +1,14 @@
+services:
+  jupyter:
+    build: .
+    image: dados-geti-jupyter
+    container_name: dados-geti-jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      # Bind-mount do projeto: editar/rodar passo a passo persiste no host
+      # e o CSV de ~127 MB fica acessível sem ser copiado para a imagem.
+      - .:/work
+    # Memória compartilhada extra para operações vetorizadas em 1M de linhas.
+    shm_size: "2gb"
+    working_dir: /work
