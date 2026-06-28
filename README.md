@@ -6,6 +6,16 @@ O objetivo do projeto é realizar uma análise de dados completa sobre um datase
 
 ---
 
+
+
+## 👥 Integrantes do Grupo
+
+* **Gabriel Albinati Sandrini** — BP3059766
+* **Gabrielle Oliveira Santana** — BP306168X
+* **Igor Murici Guimarães Santos** — BP3061779
+
+---
+
 ## 📸 Demonstração do Projeto
 
 <p align="center">
