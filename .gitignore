@@ -1,1 +1,4 @@
 vehicle_price_prediction.csv
+.ipynb_checkpoints/
+.venv/
+__pycache__/

@@ -359,15 +359,19 @@ X_clust = X_scaled
 ks = range(2, 9)
 inertias, silhouettes = [], []
 
-# Subamostra apenas para o cálculo da silhueta (métrica O(n^2)).
-sil_idx = np.random.choice(len(X_clust), size=min(10_000, len(X_clust)), replace=False)
-X_sil = X_clust.iloc[sil_idx].to_numpy()
+# Para a busca de k, treinamos o MiniBatchKMeans em uma subamostra representativa
+# de 100.000 linhas, e calculamos a silhueta em 2.000 pontos. Isso evita travamentos (OOM).
+search_idx = np.random.choice(len(X_clust), size=min(100_000, len(X_clust)), replace=False)
+X_search = X_clust.iloc[search_idx]
 
 for k in ks:
     km = MiniBatchKMeans(n_clusters=k, random_state=RANDOM_STATE, n_init=5, batch_size=4096)
-    labels = km.fit_predict(X_clust)
+    labels_search = km.fit_predict(X_search)
     inertias.append(km.inertia_)
-    silhouettes.append(silhouette_score(X_sil, labels[sil_idx]))
+    
+    # Subamostra para o cálculo da silhueta (métrica O(n^2) em relação ao número de pontos)
+    sil_idx = np.random.choice(len(X_search), size=min(2_000, len(X_search)), replace=False)
+    silhouettes.append(silhouette_score(X_search.iloc[sil_idx], labels_search[sil_idx]))
     print(f"k={k}: inertia={km.inertia_:,.0f} | silhouette={silhouettes[-1]:.4f}")
 """)
 
@@ -403,13 +407,15 @@ print(df_work["cluster"].value_counts().sort_index())
 """)
 
 code(r"""
-# Visualização 2D via PCA (modelo treinado no full; plotamos uma subamostra p/ leveza).
-pca = PCA(n_components=2, random_state=RANDOM_STATE)
-coords = pca.fit_transform(X_clust)
-
+# Visualização 2D via PCA (modelo treinado e projetado em uma subamostra de 20k p/ leveza e velocidade).
 plot_idx = np.random.choice(len(X_clust), size=min(20_000, len(X_clust)), replace=False)
+X_plot = X_clust.iloc[plot_idx]
+
+pca = PCA(n_components=2, random_state=RANDOM_STATE)
+coords = pca.fit_transform(X_plot)
+
 fig, ax = plt.subplots(figsize=(8, 6))
-sc = ax.scatter(coords[plot_idx, 0], coords[plot_idx, 1],
+sc = ax.scatter(coords[:, 0], coords[:, 1],
                 c=cluster_labels[plot_idx], cmap="tab10", s=6, alpha=0.4)
 ax.set_title(f"Clusters K-means (k={K}) projetados via PCA — amostra de {len(plot_idx)} pontos")
 ax.set_xlabel(f"PC1 ({pca.explained_variance_ratio_[0]*100:.1f}% var.)")
